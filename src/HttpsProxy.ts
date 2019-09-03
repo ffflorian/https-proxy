@@ -20,7 +20,6 @@ export class HttpsProxy {
   private readonly server: http.Server;
 
   constructor(options?: Options) {
-    console.log({options});
     this.options = {port: 8080, username: 'username', password: 'password', ...options};
     this.logger = logdown('https-proxy', {
       logger: console,
