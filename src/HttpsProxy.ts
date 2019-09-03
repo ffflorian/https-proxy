@@ -37,18 +37,14 @@ export class HttpsProxy {
     this.logger.state.isEnabled = true;
 
     this.server = http
-      .createServer((req, res) => {
-        // discard all request to proxy server except HTTP/1.1 CONNECT method
-        res.writeHead(405, {'Content-Type': 'text/plain'});
-        res.end('Method not allowed');
-      })
+      .createServer(this.onCreate)
       .on('connect', this.onConnect)
       .on('error', error => this.logger.error(`Server error: "${error.message}"`));
   }
 
   start(): void {
     this.server.listen(this.options.port);
-    this.logger.info(`Server is listening on port ${this.options.port}.`);
+    this.logger.info(`Proxy server is listening on port ${this.options.port}.`);
   }
 
   private getClosingProxyMessage(code: number, httpMessage: string): string {
@@ -60,19 +56,21 @@ export class HttpsProxy {
   }
 
   private readonly onConnect = (req: http.IncomingMessage, clientSocket: net.Socket): void => {
-    this.logger.log(clientSocket.remoteAddress, clientSocket.remotePort, req.method, req.url);
+    this.logger.info(clientSocket.remoteAddress, clientSocket.remotePort, req.method, req.url);
 
     const authorizationHeader = req.headers['proxy-authorization'];
 
     if (!authorizationHeader) {
       clientSocket.write(this.getClosingProxyMessage(407, 'Proxy Authentication Required'));
       clientSocket.end('\r\n\r\n');
+      this.logger.warn(`Rejected proxy request without authorization from "${clientSocket.remoteAddress}".`);
       return;
     }
 
     if (!this.validateAuthorization(authorizationHeader)) {
       clientSocket.write(this.getClosingProxyMessage(401, 'Unauthorized'));
       clientSocket.end('\r\n\r\n');
+      this.logger.warn(`Rejected proxy request with invalid authorization from "${clientSocket.remoteAddress}".`);
       return;
     }
 
@@ -82,6 +80,7 @@ export class HttpsProxy {
     if (!hostname) {
       clientSocket.end('HTTP/1.1 400 Bad Request\r\n');
       clientSocket.destroy();
+      this.logger.warn(`Rejected proxy request without hostname from "${clientSocket.remoteAddress}".`);
       return;
     }
 
@@ -102,7 +101,7 @@ export class HttpsProxy {
 
     serverSocket
       .on('connect', () => {
-        clientSocket.write(['HTTP/1.1 200 Connection Established', 'Proxy-agent: Node-VPN'].join('\r\n'));
+        clientSocket.write(['HTTP/1.1 200 Connection Established', 'Proxy-agent: Node-Proxy'].join('\r\n'));
         clientSocket.write('\r\n\r\n');
 
         serverSocket.pipe(
@@ -114,11 +113,13 @@ export class HttpsProxy {
           serverSocket,
           {end: false}
         );
+        this.logger.info(`Proxying data between "${clientSocket.remoteAddress}" and "${req.headers.host}".`);
       })
       .on('end', () => {
         if (clientSocket) {
           clientSocket.end(`HTTP/1.1 500 External Server End\r\n`);
         }
+        this.logger.info(`Ended proxy between "${clientSocket.remoteAddress}" and "${req.headers.host}".`);
       })
       .on('error', (err: Error) => {
         this.logger.error(`ServerSocket error: "${err.message}"`);
@@ -126,6 +127,13 @@ export class HttpsProxy {
           clientSocket.end(`HTTP/1.1 500 ${err.message}\r\n`);
         }
       });
+  };
+
+  private readonly onCreate = (req: http.IncomingMessage, res: http.ServerResponse) => {
+    // discard all request to proxy server except HTTP/1.1 CONNECT method
+    res.writeHead(405, {'Content-Type': 'text/plain'});
+    res.end('Method not allowed');
+    this.logger.warn(`Rejected "${req.method}" request from "${req.socket.remoteAddress}"`);
   };
 
   private validateAuthorization(auth: string): boolean {
