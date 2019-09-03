@@ -16,6 +16,7 @@ A simple HTTPS proxy for Node.js with authentication support.
 Options:
   -p, --password <password>  set the password (default: "password")
   -P, --port <port>          set the port (default: 8080)
+  -t, --target <url>         set the target URL
   -u, --username <username>  set the username (default: "username")
   -v, --version              output the version number
   -h, --help                 output usage information
