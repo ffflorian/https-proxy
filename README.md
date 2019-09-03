@@ -11,6 +11,8 @@ Run `yarn global add @ffflorian/https-proxy` or `npm install -g @ffflorian/https
 ```
 Usage: https-proxy [options]
 
+A simple HTTPS proxy for Node.js with authentication support.
+
 Options:
   -p, --password <password>  set the password (default: "password")
   -P, --port <port>          set the port (default: 8080)

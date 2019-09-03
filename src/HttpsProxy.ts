@@ -10,9 +10,18 @@ export interface Options {
   password?: string;
   /** Default is `8080`. */
   port?: number;
+  /** If not set, the requested URL will be used. */
+  target?: string;
   /** Default is "username". */
   username?: string;
 }
+
+const defaultOptions: Required<Options> = {
+  password: 'password',
+  port: 8080,
+  target: '',
+  username: 'username',
+};
 
 export class HttpsProxy {
   private readonly logger: logdown.Logger;
@@ -20,7 +29,7 @@ export class HttpsProxy {
   private readonly server: http.Server;
 
   constructor(options?: Options) {
-    this.options = {port: 8080, username: 'username', password: 'password', ...options};
+    this.options = {...defaultOptions, ...options};
     this.logger = logdown('https-proxy', {
       logger: console,
       markdown: false,
@@ -67,15 +76,16 @@ export class HttpsProxy {
       return;
     }
 
-    const {port, hostname} = url.parse(`//${req.url}`, false, true);
+    const {port, hostname} = url.parse(this.options.target || `//${req.url}`, false, true);
+    const parsedPort = parseInt(port || '443', 10);
 
-    if (!hostname || !port) {
+    if (!hostname) {
       clientSocket.end('HTTP/1.1 400 Bad Request\r\n');
       clientSocket.destroy();
       return;
     }
 
-    const serverSocket = net.connect({port: parseInt(port, 10), host: hostname});
+    const serverSocket = net.connect({port: parsedPort, host: hostname});
 
     clientSocket
       .on('end', () => {
