@@ -6,31 +6,38 @@ import compare = require('tsscmp');
 import * as url from 'url';
 
 export interface Options {
-  /** Default is "password". */
-  password?: string;
+  /** If set, the proxy server will require authentication */
+  auth?: {
+    /** Ask the client for username and password */
+    challenge?: boolean;
+    password: string;
+    username: string;
+  };
   /** Default is `8080`. */
   port?: number;
-  /** If not set, the requested URL will be used. */
-  target?: string;
-  /** Default is "username". */
-  username?: string;
+  /** If set, all traffic will be redirected there */
+  redirectUrl?: string;
 }
 
 const defaultOptions: Required<Options> = {
-  password: 'password',
+  auth: {
+    challenge: true,
+    password: '',
+    username: '',
+  },
   port: 8080,
-  target: '',
-  username: 'username',
+  redirectUrl: '',
 };
 
 export class HttpsProxy {
   private readonly logger: logdown.Logger;
+  private readonly openConnections: any[];
   private readonly options: Required<Options>;
   private readonly server: http.Server;
 
   constructor(options?: Options) {
     this.options = {...defaultOptions, ...options};
-    this.logger = logdown('https-proxy', {
+    this.logger = logdown('https-proxy/HttpsProxy', {
       logger: console,
       markdown: false,
     });
@@ -38,13 +45,25 @@ export class HttpsProxy {
 
     this.server = http
       .createServer(this.onCreate)
+      .on('close', () => console.log('got connection close'))
       .on('connect', this.onConnect)
       .on('error', error => this.logger.error(`Server error: "${error.message}"`));
   }
 
-  start(): void {
-    this.server.listen(this.options.port);
-    this.logger.info(`Proxy server is listening on port ${this.options.port}.`);
+  start(): Promise<void> {
+    return new Promise(resolve => {
+      this.server.listen(this.options.port, () => {
+        this.logger.info(`Proxy server is listening on port ${this.options.port}.`);
+        resolve();
+      });
+    });
+  }
+
+  stop(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.server.setTimeout(1);
+      this.server.close(error => (error ? reject(error) : resolve()));
+    });
   }
 
   private getClosingProxyMessage(code: number, httpMessage: string): string {
@@ -59,22 +78,32 @@ export class HttpsProxy {
     this.logger.info(clientSocket.remoteAddress, clientSocket.remotePort, req.method, req.url);
 
     const authorizationHeader = req.headers['proxy-authorization'];
+    const authenticationEnabled = Boolean(
+      this.options.auth && this.options.auth.password && this.options.auth.username
+    );
 
-    if (!authorizationHeader) {
-      clientSocket.write(this.getClosingProxyMessage(407, 'Proxy Authentication Required'));
-      clientSocket.end('\r\n\r\n');
-      this.logger.warn(`Rejected proxy request without authorization from "${clientSocket.remoteAddress}".`);
-      return;
+    if (authenticationEnabled) {
+      if (authorizationHeader) {
+        if (!this.validateAuthorization(authorizationHeader)) {
+          clientSocket.write(this.getClosingProxyMessage(401, 'Unauthorized'));
+          clientSocket.end('\r\n\r\n');
+          this.logger.warn(`Rejected proxy request with invalid authorization from "${clientSocket.remoteAddress}".`);
+          return;
+        }
+      } else if (this.options.auth.challenge) {
+        clientSocket.write(this.getClosingProxyMessage(407, 'Proxy Authentication Required'));
+        clientSocket.end('\r\n\r\n');
+        this.logger.warn(`Asked client for authorization from "${clientSocket.remoteAddress}".`);
+        return;
+      } else {
+        clientSocket.write(this.getClosingProxyMessage(401, 'Unauthorized'));
+        clientSocket.end('\r\n\r\n');
+        this.logger.warn(`Rejected proxy request with invalid authorization from "${clientSocket.remoteAddress}".`);
+        return;
+      }
     }
 
-    if (!this.validateAuthorization(authorizationHeader)) {
-      clientSocket.write(this.getClosingProxyMessage(401, 'Unauthorized'));
-      clientSocket.end('\r\n\r\n');
-      this.logger.warn(`Rejected proxy request with invalid authorization from "${clientSocket.remoteAddress}".`);
-      return;
-    }
-
-    const {port, hostname} = url.parse(this.options.target || `//${req.url}`, false, true);
+    const {port, hostname} = url.parse(this.options.redirectUrl || `//${req.url}`, false, true);
     const parsedPort = parseInt(port || '443', 10);
 
     if (!hostname) {
@@ -85,6 +114,7 @@ export class HttpsProxy {
     }
 
     const serverSocket = net.connect({port: parsedPort, host: hostname});
+    this.openConnections.push(serverSocket);
 
     clientSocket
       .on('end', () => {
@@ -140,7 +170,7 @@ export class HttpsProxy {
     const credentials = basicAuth.parse(auth);
     return (
       !!credentials &&
-      (compare(credentials.name, this.options.username) && compare(credentials.pass, this.options.password))
+      (compare(credentials.name, this.options.auth.username) && compare(credentials.pass, this.options.auth.password))
     );
   }
 }
