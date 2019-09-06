@@ -18,10 +18,22 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
+"@expo/spawn-async@1.5.0":
+  version "1.5.0"
+  resolved "https://registry.npmjs.org/@expo/spawn-async/-/spawn-async-1.5.0.tgz#799827edd8c10ef07eb1a2ff9dcfe081d596a395"
+  integrity sha512-LB7jWkqrHo+5fJHNrLAFdimuSXQ2MQ4lA7SQW5bf/HbsXuV2VrT/jN/M8f/KoWt0uJMGN4k/j7Opx4AvOOxSew==
+  dependencies:
+    cross-spawn "^6.0.5"
+
 "@ffflorian/prettier-config@0.0.5":
   version "0.0.5"
   resolved "https://registry.npmjs.org/@ffflorian/prettier-config/-/prettier-config-0.0.5.tgz#5a6872fa650ac3b1312d5c5bc4d8281c7ca7b0ab"
   integrity sha512-GA3LYDYsLB23x85qIY6LaDkzSsxkguKPm8F1XSP7YEjpyFvpbwLj8G3owFJGEyImOwZZWH0WQRPFczCv6uSqrg==
+
+"@ffflorian/semantic-release-config@0.1.3":
+  version "0.1.3"
+  resolved "https://registry.npmjs.org/@ffflorian/semantic-release-config/-/semantic-release-config-0.1.3.tgz#33daf283a0ee0540392104ceb6bea778b7d40c99"
+  integrity sha512-l+6Cj4bhBaNcHnppfCHn/jBpvCUhvTsv3TWOQLgSQpUzZW2u23xhmqezTJW1zqTynhKm2emHIbS32Y3N7RKWYQ==
 
 "@ffflorian/tslint-config@0.7.0":
   version "0.7.0"
@@ -811,6 +823,11 @@ combined-stream@^1.0.6, combined-stream@~1.0.6:
   dependencies:
     delayed-stream "~1.0.0"
 
+commander-remaining-args@1.2.0:
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/commander-remaining-args/-/commander-remaining-args-1.2.0.tgz#6fab4cce4a59db1698121f59105364adcb0b4c68"
+  integrity sha512-yH0yRUtHhJ/389HWgQlEMAwqKXMZr/JJH4xqDIzXCisNy2mS6YSAe3WncgjxZvhLJqZPxJn8MivRK+B0lSNXPw==
+
 commander@3.0.1:
   version "3.0.1"
   resolved "https://registry.npmjs.org/commander/-/commander-3.0.1.tgz#4595aec3530525e671fb6f85fb173df8ff8bf57a"
@@ -1509,7 +1526,7 @@ from2@^2.1.0, from2@^2.3.0:
     inherits "^2.0.1"
     readable-stream "^2.0.0"
 
-fs-extra@^8.0.0:
+fs-extra@8.1.0, fs-extra@^8.0.0:
   version "8.1.0"
   resolved "https://registry.npmjs.org/fs-extra/-/fs-extra-8.1.0.tgz#49d43c45a88cd9677668cb7be1b46efdb8d2e1c0"
   integrity sha512-yhlQgA6mnOJUKOsRUFsgJdQCvkKhcz8tlZG5HBQfReYZy46OwLcY+Zia0mtdHsOo9y/hP+CxMN0TU9QxoOtG4g==
@@ -3052,7 +3069,7 @@ npm-logical-tree@^1.2.1:
     semver "^5.6.0"
     validate-npm-package-name "^3.0.0"
 
-npm-packlist@^1.1.12, npm-packlist@^1.4.4:
+npm-packlist@1.4.4, npm-packlist@^1.1.12, npm-packlist@^1.4.4:
   version "1.4.4"
   resolved "https://registry.npmjs.org/npm-packlist/-/npm-packlist-1.4.4.tgz#866224233850ac534b63d1a6e76050092b5d2f44"
   integrity sha512-zTLo8UcVYtDU3gdeaFu2Xu0n0EvelfHDGuqtNIn5RO7yQj4H1TqNdBc/yZjxnWA0PVB8D3Woyp0i5B43JwQ6Vw==
@@ -3666,6 +3683,18 @@ psl@^1.1.24:
   version "1.3.1"
   resolved "https://registry.npmjs.org/psl/-/psl-1.3.1.tgz#d5aa3873a35ec450bc7db9012ad5a7246f6fc8bd"
   integrity sha512-2KLd5fKOdAfShtY2d/8XDWVRnmp3zp40Qt6ge2zBPFARLXOGUf2fHD5eg+TV/5oxBtQKVhjUaKFsAaE4HnwfSA==
+
+publish-flat@1.3.2:
+  version "1.3.2"
+  resolved "https://registry.npmjs.org/publish-flat/-/publish-flat-1.3.2.tgz#0108efc889eb56ebeaac172badcd2953285a55b6"
+  integrity sha512-HyAPFj03r4gJzTBbWCP1VogyZZzF/8G6M1SPs4o+GHzi7vDn32ga70oLUqG91za+OdF+iLHToRU0WwP99ursaw==
+  dependencies:
+    "@expo/spawn-async" "1.5.0"
+    commander "3.0.1"
+    commander-remaining-args "1.2.0"
+    fs-extra "8.1.0"
+    logdown "3.2.8"
+    npm-packlist "1.4.4"
 
 pump@^2.0.0:
   version "2.0.1"

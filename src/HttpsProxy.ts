@@ -131,8 +131,8 @@ export class HttpsProxy {
 
   private readonly onCreate = (req: http.IncomingMessage, res: http.ServerResponse) => {
     // discard all request to proxy server except HTTP/1.1 CONNECT method
-    res.writeHead(405, {'Content-Type': 'text/plain'});
-    res.end('Method not allowed');
+    res.writeHead(400, {'Content-Type': 'text/plain'});
+    res.end('Bad Request');
     this.logger.warn(`Rejected "${req.method}" request from "${req.socket.remoteAddress}"`);
   };
 
