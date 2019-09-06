@@ -1,3 +1,9 @@
+## [1.3.1](https://github.com/ffflorian/https-proxy/compare/v1.3.0...v1.3.1) (2019-09-06)
+
+### Bug Fixes
+
+- Read correct package.json ([b503b72](https://github.com/ffflorian/https-proxy/commit/b503b72))
+
 # [1.3.0](https://github.com/ffflorian/https-proxy/compare/v1.2.0...v1.3.0) (2019-09-06)
 
 ### Features
