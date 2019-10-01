@@ -1,3 +1,9 @@
+## [1.4.2](https://github.com/ffflorian/https-proxy/compare/v1.4.1...v1.4.2) (2019-10-01)
+
+### Bug Fixes
+
+- Log authentication status ([82ca878](https://github.com/ffflorian/https-proxy/commit/82ca878))
+
 ## [1.4.1](https://github.com/ffflorian/https-proxy/compare/v1.4.0...v1.4.1) (2019-10-01)
 
 ### Bug Fixes
