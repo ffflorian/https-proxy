@@ -1,3 +1,9 @@
+## [1.3.2](https://github.com/ffflorian/https-proxy/compare/v1.3.1...v1.3.2) (2019-10-01)
+
+### Bug Fixes
+
+- Correct log message for HTTP status 407 ([9b2d950](https://github.com/ffflorian/https-proxy/commit/9b2d950))
+
 ## [1.3.1](https://github.com/ffflorian/https-proxy/compare/v1.3.0...v1.3.1) (2019-09-06)
 
 ### Bug Fixes
