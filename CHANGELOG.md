@@ -1,3 +1,9 @@
+## [1.4.1](https://github.com/ffflorian/https-proxy/compare/v1.4.0...v1.4.1) (2019-10-01)
+
+### Bug Fixes
+
+- Better log message for HTTP status 407 ([85e56ce](https://github.com/ffflorian/https-proxy/commit/85e56ce))
+
 # [1.4.0](https://github.com/ffflorian/https-proxy/compare/v1.3.2...v1.4.0) (2019-10-01)
 
 ### Features
