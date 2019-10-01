@@ -31,6 +31,7 @@ const defaultOptions: Required<AuthenticationOptions> = {
 };
 
 export class HttpsProxy {
+  private readonly authenticationEnabled: boolean;
   private readonly logger: logdown.Logger;
   private readonly options: Required<AuthenticationOptions>;
   private readonly server: http.Server;
@@ -42,6 +43,7 @@ export class HttpsProxy {
       markdown: false,
     });
     this.logger.state.isEnabled = true;
+    this.authenticationEnabled = Boolean(this.options.username && this.options.password);
 
     this.server = http
       .createServer(this.onCreate)
@@ -50,8 +52,12 @@ export class HttpsProxy {
   }
 
   start(): void {
+    const authenticationStatus = this.authenticationEnabled ? 'ON' : 'OFF';
+
     this.server.listen(this.options.port);
-    this.logger.info(`Proxy server is listening on port ${this.options.port}.`);
+    this.logger.info(
+      `Proxy server is listening on port ${this.options.port} (authentication: ${authenticationStatus}).`
+    );
   }
 
   private getClosingProxyMessage(code: number, httpMessage: string): string {
@@ -67,7 +73,7 @@ export class HttpsProxy {
 
     const authorizationHeader = req.headers['proxy-authorization'];
 
-    if (this.options.password && this.options.username) {
+    if (this.authenticationEnabled) {
       if (!authorizationHeader) {
         clientSocket.write(this.getClosingProxyMessage(407, 'Proxy Authentication Required'));
         clientSocket.end('\r\n\r\n');
