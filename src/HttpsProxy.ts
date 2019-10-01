@@ -6,29 +6,36 @@ import compare = require('tsscmp');
 import * as url from 'url';
 
 export interface Options {
-  /** Default is "password". */
-  password?: string;
   /** Default is `8080`. */
   port?: number;
   /** If not set, the requested URL will be used. */
   target?: string;
-  /** Default is "username". */
-  username?: string;
 }
 
-const defaultOptions: Required<Options> = {
-  password: 'password',
+export interface AuthenticationOptions extends Options {
+  /** If not set, no authentication will be required. */
+  password: string;
+  /** Default is `8080`. */
+  port?: number;
+  /** If not set, the requested URL will be used. */
+  target?: string;
+  /** If not set, no authentication will be required. */
+  username: string;
+}
+
+const defaultOptions: Required<AuthenticationOptions> = {
+  password: '',
   port: 8080,
   target: '',
-  username: 'username',
+  username: '',
 };
 
 export class HttpsProxy {
   private readonly logger: logdown.Logger;
-  private readonly options: Required<Options>;
+  private readonly options: Required<AuthenticationOptions>;
   private readonly server: http.Server;
 
-  constructor(options?: Options) {
+  constructor(options?: Options | AuthenticationOptions) {
     this.options = {...defaultOptions, ...options};
     this.logger = logdown('https-proxy', {
       logger: console,
@@ -60,18 +67,20 @@ export class HttpsProxy {
 
     const authorizationHeader = req.headers['proxy-authorization'];
 
-    if (!authorizationHeader) {
-      clientSocket.write(this.getClosingProxyMessage(407, 'Proxy Authentication Required'));
-      clientSocket.end('\r\n\r\n');
-      this.logger.warn(`Responded to proxy request with authorization request "${clientSocket.remoteAddress}".`);
-      return;
-    }
+    if (this.options.password && this.options.username) {
+      if (!authorizationHeader) {
+        clientSocket.write(this.getClosingProxyMessage(407, 'Proxy Authentication Required'));
+        clientSocket.end('\r\n\r\n');
+        this.logger.warn(`Responded to proxy request with authorization request "${clientSocket.remoteAddress}".`);
+        return;
+      }
 
-    if (!this.validateAuthorization(authorizationHeader)) {
-      clientSocket.write(this.getClosingProxyMessage(401, 'Unauthorized'));
-      clientSocket.end('\r\n\r\n');
-      this.logger.warn(`Rejected proxy request with invalid authorization from "${clientSocket.remoteAddress}".`);
-      return;
+      if (!this.validateAuthorization(authorizationHeader)) {
+        clientSocket.write(this.getClosingProxyMessage(401, 'Unauthorized'));
+        clientSocket.end('\r\n\r\n');
+        this.logger.warn(`Rejected proxy request with invalid authorization from "${clientSocket.remoteAddress}".`);
+        return;
+      }
     }
 
     const {port, hostname} = url.parse(this.options.target || `//${req.url}`, false, true);

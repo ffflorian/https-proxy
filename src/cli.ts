@@ -16,13 +16,19 @@ const {description, name, version}: {description: string; name: string; version:
 
 program
   .name(name.replace(/^@[^/]+\//, ''))
-  .description(description)
-  .option('-p, --password <password>', 'set the password', 'password')
+  .description(`${description}\nIf password and username are not set, no authentication will be required.`)
+  .option('-p, --password <password>', 'set the password')
   .option('-P, --port <port>', 'set the port', 8080)
-  .option('-t, --target <url>', 'set the target URL')
-  .option('-u, --username <username>', 'set the username', 'username')
+  .option('-t, --target <url>', 'set the target URL to forward users to')
+  .option('-u, --username <username>', 'set the username')
   .version(version, '-v, --version')
   .parse(process.argv);
+
+if ((program.password && !program.username) || (!program.password && program.username)) {
+  console.error('Password and username are both required for authentication.');
+  program.outputHelp();
+  process.exit(1);
+}
 
 new HttpsProxy({
   ...(program.password && {password: program.password}),
