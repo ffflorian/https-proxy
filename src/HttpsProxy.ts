@@ -71,7 +71,7 @@ export class HttpsProxy {
       if (!authorizationHeader) {
         clientSocket.write(this.getClosingProxyMessage(407, 'Proxy Authentication Required'));
         clientSocket.end('\r\n\r\n');
-        this.logger.warn(`Responded to proxy request with authorization request "${clientSocket.remoteAddress}".`);
+        this.logger.warn(`Responded to proxy request from "${clientSocket.remoteAddress}" with authorization request`);
         return;
       }
 
