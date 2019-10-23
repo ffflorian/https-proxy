@@ -1,7 +1,9 @@
 import * as basicAuth from 'basic-auth';
+import * as fs from 'fs';
 import * as http from 'http';
 import * as logdown from 'logdown';
 import * as net from 'net';
+import * as path from 'path';
 import compare = require('tsscmp');
 import * as url from 'url';
 
@@ -22,6 +24,14 @@ export interface AuthenticationOptions extends Options {
   /** If not set, no authentication will be required. */
   username: string;
 }
+
+const defaultPackageJsonPath = path.join(__dirname, 'package.json');
+const packageJsonPath = fs.existsSync(defaultPackageJsonPath)
+  ? defaultPackageJsonPath
+  : path.join(__dirname, '../package.json');
+
+const packageJson = fs.readFileSync(packageJsonPath, 'utf-8');
+const {name: packageName, version: packageVersion}: {name: string; version: string} = JSON.parse(packageJson);
 
 const defaultOptions: Required<AuthenticationOptions> = {
   password: '',
@@ -63,7 +73,7 @@ export class HttpsProxy {
   private getClosingProxyMessage(code: number, httpMessage: string): string {
     return [
       `HTTP/1.1 ${code} ${httpMessage}`,
-      'Proxy-Authenticate: Basic realm="proxy"',
+      `Proxy-Authenticate: Basic realm="${packageName} v${packageVersion}"`,
       'Proxy-Connection: close',
     ].join('\r\n');
   }
