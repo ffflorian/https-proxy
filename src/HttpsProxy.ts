@@ -119,15 +119,9 @@ export class HttpsProxy {
         clientSocket.write(['HTTP/1.1 200 Connection Established', 'Proxy-agent: Node-Proxy'].join('\r\n'));
         clientSocket.write('\r\n\r\n');
 
-        serverSocket.pipe(
-          clientSocket,
-          {end: false}
-        );
+        serverSocket.pipe(clientSocket, {end: false});
+        clientSocket.pipe(serverSocket, {end: false});
 
-        clientSocket.pipe(
-          serverSocket,
-          {end: false}
-        );
         this.logger.info(`Proxying data between "${clientSocket.remoteAddress}" and "${req.headers.host}".`);
       })
       .on('end', () => {
@@ -155,7 +149,8 @@ export class HttpsProxy {
     const credentials = basicAuth.parse(auth);
     return (
       !!credentials &&
-      (compare(credentials.name, this.options.username) && compare(credentials.pass, this.options.password))
+      compare(credentials.name, this.options.username) &&
+      compare(credentials.pass, this.options.password)
     );
   }
 }
