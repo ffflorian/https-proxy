@@ -5,7 +5,7 @@
   },
   "dependencies": {
     "basic-auth": "2.0.1",
-    "commander": "4.0.0",
+    "commander": "4.0.1",
     "logdown": "3.2.8",
     "tsscmp": "1.0.6"
   },
