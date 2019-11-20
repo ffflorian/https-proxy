@@ -1,3 +1,9 @@
+# [1.5.0](https://github.com/ffflorian/https-proxy/compare/v1.4.2...v1.5.0) (2019-11-20)
+
+### Features
+
+- Force publish ([f721dd2](https://github.com/ffflorian/https-proxy/commit/f721dd2))
+
 ## [1.4.2](https://github.com/ffflorian/https-proxy/compare/v1.4.1...v1.4.2) (2019-10-01)
 
 ### Bug Fixes
