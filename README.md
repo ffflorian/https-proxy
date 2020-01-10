@@ -1,4 +1,4 @@
-# https-proxy [![Build Status](https://action-badges.now.sh/ffflorian/https-proxy)](https://github.com/ffflorian/https-proxy/actions/) [![npm version](https://img.shields.io/npm/v/@ffflorian/https-proxy.svg?style=flat)](https://www.npmjs.com/package/@ffflorian/https-proxy) [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=ffflorian/https-proxy)](https://dependabot.com)
+# https-proxy [![Build Status](https://github.com/ffflorian/https-proxy/workflows/Build/badge.svg)](https://github.com/ffflorian/https-proxy/actions/) [![npm version](https://img.shields.io/npm/v/@ffflorian/https-proxy.svg?style=flat)](https://www.npmjs.com/package/@ffflorian/https-proxy) [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=ffflorian/https-proxy)](https://dependabot.com)
 
 A simple HTTPS proxy for Node.js with authentication support.
 
