@@ -18,7 +18,7 @@ program
   .name(name.replace(/^@[^/]+\//, ''))
   .description(`${description}\nIf password and username are not set, no authentication will be required.`)
   .option('-p, --password <password>', 'set the password')
-  .option('-P, --port <port>', 'set the port', 8080)
+  .option('-P, --port <port>', 'set the port', '8080')
   .option('-t, --target <url>', 'set the target URL to forward users to')
   .option('-u, --username <username>', 'set the username')
   .version(version, '-v, --version')
