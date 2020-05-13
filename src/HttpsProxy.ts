@@ -4,6 +4,7 @@ import * as logdown from 'logdown';
 import * as net from 'net';
 import compare = require('tsscmp');
 import * as url from 'url';
+import * as HTTP_STATUS_CODE from 'http-status-codes';
 
 export interface Options {
   /** Default is `8080`. */
@@ -75,14 +76,16 @@ export class HttpsProxy {
 
     if (this.authenticationEnabled) {
       if (!authorizationHeader) {
-        clientSocket.write(this.getClosingProxyMessage(407, 'Proxy Authentication Required'));
+        clientSocket.write(
+          this.getClosingProxyMessage(HTTP_STATUS_CODE.PROXY_AUTHENTICATION_REQUIRED, 'Proxy Authentication Required')
+        );
         clientSocket.end('\r\n\r\n');
         this.logger.warn(`Responded to proxy request from "${clientSocket.remoteAddress}" with authorization request`);
         return;
       }
 
       if (!this.validateAuthorization(authorizationHeader)) {
-        clientSocket.write(this.getClosingProxyMessage(401, 'Unauthorized'));
+        clientSocket.write(this.getClosingProxyMessage(HTTP_STATUS_CODE.UNAUTHORIZED, 'Unauthorized'));
         clientSocket.end('\r\n\r\n');
         this.logger.warn(`Rejected proxy request with invalid authorization from "${clientSocket.remoteAddress}".`);
         return;
@@ -99,7 +102,7 @@ export class HttpsProxy {
       return;
     }
 
-    const serverSocket = net.connect({port: parsedPort, host: hostname});
+    const serverSocket = net.connect({host: hostname, port: parsedPort});
 
     clientSocket
       .on('end', () => {
@@ -140,7 +143,7 @@ export class HttpsProxy {
 
   private readonly onCreate = (req: http.IncomingMessage, res: http.ServerResponse) => {
     // discard all request to proxy server except HTTP/1.1 CONNECT method
-    res.writeHead(400, {'Content-Type': 'text/plain'});
+    res.writeHead(HTTP_STATUS_CODE.BAD_REQUEST, {'Content-Type': 'text/plain'});
     res.end('Bad Request');
     this.logger.warn(`Rejected "${req.method}" request from "${req.socket.remoteAddress}"`);
   };
