@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import * as program from 'commander';
+import * as commander from 'commander';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -14,7 +14,7 @@ const packageJsonPath = fs.existsSync(defaultPackageJsonPath)
 const packageJson = fs.readFileSync(packageJsonPath, 'utf-8');
 const {description, name, version}: {description: string; name: string; version: string} = JSON.parse(packageJson);
 
-program
+commander
   .name(name.replace(/^@[^/]+\//, ''))
   .description(`${description}\nIf password and username are not set, no authentication will be required.`)
   .option('-p, --password <password>', 'set the password')
@@ -24,15 +24,15 @@ program
   .version(version, '-v, --version')
   .parse(process.argv);
 
-if ((program.password && !program.username) || (!program.password && program.username)) {
+if ((commander.password && !commander.username) || (!commander.password && commander.username)) {
   console.error('Password and username are both required for authentication.');
-  program.outputHelp();
+  commander.outputHelp();
   process.exit(1);
 }
 
 new HttpsProxy({
-  ...(program.password && {password: program.password}),
-  ...(program.port && {port: program.port}),
-  ...(program.target && {target: program.target}),
-  ...(program.username && {username: program.username}),
+  ...(commander.password && {password: commander.password}),
+  ...(commander.port && {port: commander.port}),
+  ...(commander.target && {target: commander.target}),
+  ...(commander.username && {username: commander.username}),
 }).start();
