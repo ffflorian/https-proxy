@@ -64,6 +64,7 @@ export class HttpsProxy {
   private getClosingProxyMessage(code: number, httpMessage: string): string {
     return [
       `HTTP/1.1 ${code} ${httpMessage}`,
+      `Date: ${new Date().toUTCString()}`,
       'Proxy-Authenticate: Basic realm="proxy"',
       'Proxy-Connection: close',
     ].join('\r\n');
