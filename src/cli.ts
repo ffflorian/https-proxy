@@ -26,7 +26,10 @@ commander
 
 const commanderOptions = commander.opts();
 
-if ((commander.password && !commanderOptions.username) || (!commanderOptions.password && commanderOptions.username)) {
+if (
+  (commanderOptions.password && !commanderOptions.username) ||
+  (!commanderOptions.password && commanderOptions.username)
+) {
   console.error('Password and username are both required for authentication.');
   commander.outputHelp();
   process.exit(1);
