@@ -24,15 +24,17 @@ commander
   .version(version, '-v, --version')
   .parse(process.argv);
 
-if ((commander.password && !commander.username) || (!commander.password && commander.username)) {
+const commanderOptions = commander.opts();
+
+if ((commander.password && !commanderOptions.username) || (!commanderOptions.password && commanderOptions.username)) {
   console.error('Password and username are both required for authentication.');
   commander.outputHelp();
   process.exit(1);
 }
 
 new HttpsProxy({
-  ...(commander.password && {password: commander.password}),
-  ...(commander.port && {port: commander.port}),
-  ...(commander.target && {target: commander.target}),
-  ...(commander.username && {username: commander.username}),
+  ...(commanderOptions.password && {password: commanderOptions.password}),
+  ...(commanderOptions.port && {port: commanderOptions.port}),
+  ...(commanderOptions.target && {target: commanderOptions.target}),
+  ...(commanderOptions.username && {username: commanderOptions.username}),
 }).start();
